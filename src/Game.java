@@ -57,8 +57,8 @@ public class Game {
         Scanner input = new Scanner(System.in);
         // The variable turn is the index of the player who is currently putting their cards down
         int turn = 0;
-        // currCard is the index in ranks of the ranking of the card the player is asked to put down
-        int currCard = 0;
+        // currRankIndex is the index in ranks of the ranking of the card the player is asked to put down
+        int currRankIndex = 0;
         // numberOfCards is the number of cards the user has decided to put down in the card pile
         int numberOfCards = 0;
         // currPlayer is the player who is currently playing (at the index of turn)
@@ -71,7 +71,7 @@ public class Game {
             input.nextLine();
             System.out.println("\n\n\n\n\n\n\n\n\n\n\n\n");
             System.out.println("This is your hand: " + currPlayer.getHand());
-            System.out.println("How many " + ranks[currCard] + "'s are you putting down?");
+            System.out.println("How many " + ranks[currRankIndex] + "'s are you putting down?");
             numberOfCards = input.nextInt();
             input.nextLine();
             System.out.println("Type anything on the keyboard to hide your hand.");
@@ -93,7 +93,7 @@ public class Game {
                 }
                 // If the accuser is correct that the current player lied, add all cards in cardPile to the current
                 // player's hand
-                if (addToPile(ranks[currCard], numberOfCards, currPlayer.getHand())) {
+                if (addToPile(ranks[currRankIndex], numberOfCards, currPlayer.getHand())) {
                     System.out.println("You're right! " + currPlayer.getName() + " takes all the cards from the pile.");
                     addCardPileToHand(currPlayer);
                 }
@@ -108,13 +108,13 @@ public class Game {
             // Else, remove the number of cards (with the correct ranking if possible) that the current player indicated
             // from their hand and add those cards to cardPile
             else {
-                addToPile(ranks[currCard], numberOfCards, players.get(turn).getHand());
+                addToPile(ranks[currRankIndex], numberOfCards, players.get(turn).getHand());
             }
 
             // Incrementing to the next ranking; wrap back to 0 if necessary
-            currCard++;
-            if (currCard >= ranks.length) {
-                currCard = 0;
+            currRankIndex++;
+            if (currRankIndex >= ranks.length) {
+                currRankIndex = 0;
             }
             // Incrementing to the next player's turn; wrap back to 0 if necessary
             turn++;
