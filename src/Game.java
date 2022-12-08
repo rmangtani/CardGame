@@ -29,7 +29,8 @@ public class Game {
             String name = input.nextLine();
             ArrayList<Card> hand = new ArrayList<Card>();
             // Deal cards to player's hand
-            for (int j = 0; j < deck.getSize()/numPlayers; j++) {
+            // deck.getSize()/numPlayers
+            for (int j = 0; j < 6; j++) {
                 hand.add(deck.deal());
             }
             // Add player to players arraylist (w name & hand)
@@ -38,7 +39,7 @@ public class Game {
     }
 
     public void printInstructions() {
-        System.out.println("Welcome to BS! [instructions]");
+        System.out.println("Welcome to BS! [instructions]\n");
     }
 
     public void playGame() {
@@ -46,25 +47,44 @@ public class Game {
         String[] ranks = {"Ace","2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King"};
         Scanner input = new Scanner(System.in);
         int turn = 0;
-        // System.out.println(players.get(turn).getName() + " starts the game. They play their ace of spades.");
         int currCard = 0;
-        int numberOfCards;
-        while (true) {
-            System.out.println("It's " + players.get(turn).getName() + "'s turn.");
+        int numberOfCards = 0;
+        Player currPlayer = null;
+        while (findWinner() == null) {
+            currPlayer = players.get(turn);
+            System.out.println("\nIt's " + currPlayer.getName() + "'s turn.");
             System.out.println("Type anything on the keyboard to see your hand.");
             input.nextLine();
-            input.nextLine();
             System.out.println("\n\n\n\n\n\n\n\n\n\n\n\n");
-            System.out.println("This is your hand: " + players.get(turn).getHand());
+            System.out.println("This is your hand: " + currPlayer.getHand());
+            System.out.println("How many " + ranks[currCard] + "'s are you putting down?");
+            numberOfCards = input.nextInt();
+            input.nextLine();
             System.out.println("Type anything on the keyboard to hide your hand.");
             input.nextLine();
             System.out.println("\n\n\n\n\n\n\n\n\n\n\n\n");
-            System.out.println("How many "  + ranks[currCard] + "'s are you putting down?");
-            numberOfCards = input.nextInt();
-            // Remove these cards from the player's hand and add those cards to the card pile
-            addToPile(ranks[currCard], numberOfCards, players.get(turn).getHand());
-            // ask if anybody thinks this is a lie
-            System.out.println("This is your updated hand: " + players.get(turn).getHand());
+
+            System.out.println("Does anybody think " + currPlayer.getName() + " is lying? (y/n)");
+            String isLie = input.nextLine();
+            if (isLie.equals("y")) {
+                String accuser = "";
+                while (findPlayer(accuser) == null) {
+                    System.out.println("Who thinks " + currPlayer.getName() + " is lying?");
+                    accuser = input.nextLine();
+                }
+                if (addToPile(ranks[currCard], numberOfCards, currPlayer.getHand())) {
+                    System.out.println("You're right! " + currPlayer.getName() + " takes all the cards from the pile.");
+                    addCardPileToHand(currPlayer);
+                }
+                else {
+                    System.out.println("You are incorrect. " + accuser + " takes all the cards from the pile.");
+                    addCardPileToHand(findPlayer(accuser));
+                }
+            }
+            else {
+                // Remove these cards from the player's hand and add those cards to the card pile
+                addToPile(ranks[currCard], numberOfCards, players.get(turn).getHand());
+            }
             currCard++;
             if (currCard >= ranks.length) {
                 currCard = 0;
@@ -73,53 +93,79 @@ public class Game {
             if (turn >= players.size()) {
                 turn = 0;
             }
-            // continuously check if anybody has no cards left - that means they won
         }
     }
 
-    // Finding the player who starts the game
-//    public int findStartingPlayer() {
-//        Player currPlayer;
-//        Card aceOfSpades = new Card("A", "Spade", 1);
-//        for (int i = 0; i < players.size(); i++) {
-//            currPlayer = players.get(i);
-//            for (int j = 0; j < currPlayer.getHandSize(); j++) {
-//                if (currPlayer.getHand().get(j).equals(aceOfSpades)) {
-//                    currPlayer.getHand().remove(j);
-//                    return i;
-//                }
-//            }
-//        }
-//        return -1;
-//    }
-
-    public void addToPile(String rank, int numCards, ArrayList<Card> hand) {
+    // Returns true if the user lied and false if the user said the truth
+    // Also removes cards from user and adds to cardPile
+    public boolean addToPile(String rank, int numCards, ArrayList<Card> hand) {
+        // count is the number of cards that have currently been removed from hand & added to cardPile
         int count = 0;
         for (int i = 0; i < hand.size(); i++) {
-            if ((hand.get(i).getRank().equals(rank)) && (count < numCards)) {
+            if ((hand.get(i).getRank().equals(rank))) {
                 cardPile.add(hand.remove(i));
                 count++;
                 i--;
             }
-            if (count >= numCards) {
+            if (count == numCards) {
                 break;
             }
         }
-//hi
-        // If the user was lying and they don't actually have the cards they said they had, select random cards to add to the pile
+
+        // If the user was lying, and they don't actually have the number of cards they said they had, select any other cards from their hand to add to the pile
         if (count < numCards) {
-            for (int i = 0; i < (numCards-count); i++) {
+            for (int i = 0; i < hand.size(); i++) {
                 cardPile.add(hand.remove(i));
+                i--;
+                count++;
+                if (count == numCards) {
+                    break;
+                }
             }
+            return true;
+        }
+        else {
+            return false;
         }
 
+    }
+
+    // finds the player from the name
+    public Player findPlayer(String name) {
+        for (int i = 0; i < players.size(); i++) {
+            if (players.get(i).getName().equals(name)) {
+                return players.get(i);
+            }
+        }
+        return null;
+    }
+
+    // Adds all current cards in cardPile to the player's hand and simultaneously removes those cards from the cardPile
+    public void addCardPileToHand(Player player) {
+        for (int i = 0; i < cardPile.size(); i++) {
+            player.getHand().add(cardPile.remove(i));
+            i--;
+        }
+    }
+
+    public Player findWinner() {
+        for (int i = 0; i < players.size(); i++) {
+            if (players.get(i).getHand().isEmpty()) {
+                System.out.println(players.get(i).getName() + " won!");
+                return players.get(i);
+            }
+        }
+        return null;
     }
 
     public static void main(String[] args) {
         // create new game object and call playGame
         Scanner input = new Scanner(System.in);
-        System.out.println("How many players?");
-        int numPlayers = input.nextInt();
+        int numPlayers = 0;
+        while (numPlayers <= 0) {
+            System.out.println("How many players?");
+            numPlayers = input.nextInt();
+        }
         Game game = new Game(numPlayers);
         game.playGame();
     }
