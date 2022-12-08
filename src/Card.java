@@ -11,6 +11,7 @@ public class Card {
         this.point = point;
     }
 
+    // Getter and Setter methods of the instance variables
     public String getRank() {
         return rank;
     }
@@ -35,11 +36,12 @@ public class Card {
         this.point = point;
     }
 
+    // Returns true if this card equals the other card and false if not
     public boolean equals(Card other) {
-        return ((this.rank.equals(other.rank)) && (this.suit.equals(other.suit)) && (this.point == other.point));
+        return ((rank.equals(other.rank)) && (suit.equals(other.suit)) && (point == other.point));
     }
 
-    @Override // what does this do?
+    @Override
     public String toString() {
         return rank + " of " + suit;
     }

@@ -18,6 +18,7 @@ public class Player {
         points = 0;
     }
 
+    // Getter methods of instance variables
     public String getName() {
         return name;
     }
@@ -34,15 +35,9 @@ public class Player {
         points += num;
     }
 
+    // Adds a card to the player's hand
     public void addCard(Card newCard) {
         hand.add(newCard);
-    }
-
-    public int getHandSize() {
-        if (!hand.isEmpty()) {
-            return hand.size();
-        }
-        return 0;
     }
 
     public String toString() {
